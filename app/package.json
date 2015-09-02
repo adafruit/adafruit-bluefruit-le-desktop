@@ -1,0 +1,17 @@
+{
+  "name": "adafruit-ble-desktop",
+  "version": "1.0.0",
+  "description": "Application to interact with Adafruit Bluefruit LE and other Bluetooth low energy devices.",
+  "main": "main.js",
+  "keywords": [
+    "electon",
+    "ble"
+  ],
+  "author": "Tony DiCola <tdicola@adafruit.com>",
+  "license": "MIT",
+  "dependencies": {
+    "noble": "^1.1.0",
+    "react": "^0.13.3",
+    "react-router": "^0.13.3"
+  }
+}

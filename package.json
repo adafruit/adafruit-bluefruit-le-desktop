@@ -1,0 +1,20 @@
+{
+  "name": "adafruit-ble-desktop-build",
+  "version": "1.0.0",
+  "description": "Scripts to build the Adafruit BLE desktop application.",
+  "author": "Tony DiCola <tdicola@adafruit.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "asar": "^0.8.0",
+    "babel": "^5.8.21",
+    "del": "^2.0.0",
+    "electron-packager": "^5.0.2",
+    "electron-rebuild": "^0.2.5",
+    "gulp": "^3.9.0",
+    "gulp-babel": "^5.2.1",
+    "gulp-replace": "^0.5.4",
+    "gulp-run": "^1.6.10",
+    "gulp-sourcemaps": "^1.5.2",
+    "gulp-zip": "^3.0.2"
+  }
+}

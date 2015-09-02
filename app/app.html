@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Adafruit Bluefruit LE Desktop</title>
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <style>
+      body {
+        margin-top: 20px;
+      }
+      .row {
+        margin-left: 0;
+        margin-right: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      // Required to make jQuery work with electron and CommonJS.
+      window.$ = window.jQuery = require('./lib/jquery-2.1.4.js');
+    </script>
+    <script src="lib/bootstrap.js"></script>
+    <script>
+      require('./dist/app.js');
+    </script>
+  </body>
+</html>
