@@ -6,6 +6,7 @@ import Connect from './components/connect.js'
 import Information from './components/information.js'
 import UART from './components/uart.js'
 import Control from './components/control.js'
+import BNO055 from './components/bno055.js'
 import Sensor from './components/sensor.js'
 
 
@@ -17,6 +18,7 @@ let routes = (
   	<Route name="info"    path="/info/:index"    handler={Information}/>
   	<Route name="uart"    path="/uart/:index"    handler={UART}/>
   	<Route name="control" path="/control/:index" handler={Control}/>
+    <Route name="bno055"  path="/bno055/:index"  handler={BNO055}/>
   	<Route name="sensor"  path="/sensor/:index"  handler={Sensor}/>
   </Route>
 );

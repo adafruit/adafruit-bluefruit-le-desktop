@@ -159,7 +159,7 @@ app.on('ready', function() {
           else if (ch.uuid === '6e400003b5a3f393e0a9e50e24dcca9e') {
             uartRx = ch;
             uartRx.on('data', function(data) {
-              console.log('Received: ' + data);
+              //console.log('Received: ' + data);
               mainWindow.webContents.send('uartRx', String(data));
             });
             uartRx.notify(true);

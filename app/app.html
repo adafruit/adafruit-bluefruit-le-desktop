@@ -20,7 +20,16 @@
       // Required to make jQuery work with electron and CommonJS.
       window.$ = window.jQuery = require('./lib/jquery-2.1.4.js');
     </script>
+    <!--<script>
+      THREE = require('./lib/three.min.js');
+    </script>-->
     <script src="lib/bootstrap.js"></script>
+    <script src="lib/three.js"></script>
+    <script src="lib/DDSLoader.js"></script>
+    <script src="lib/MTLLoader.js"></script>
+    <script src="lib/OBJMTLLoader.js"></script>
+    <script src="lib/OBJLoader.js"></script>
+    <script src="lib/STLLoader.js"></script>
     <script>
       require('./dist/app.js');
     </script>
