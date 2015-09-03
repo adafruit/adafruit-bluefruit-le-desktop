@@ -14,6 +14,14 @@ var electronVersion = '0.30.4',
     platform = os.platform(),
     arch = os.arch();
 
+
+function packageFullName() {
+  // Return full package name including platform and architecture.
+  // Note that this depends on how electron-packager outputs results
+  // so you can't just change this algorithm.
+  return packageName + '-' + platform + '-' + arch;
+}
+
 // Define tasks.
 gulp.task('dist-clean', function() {
   // Delete any transformed javascript & JSX files.
@@ -87,7 +95,7 @@ gulp.task('build', ['js-build', 'native-build'], function() {
 });
 
 gulp.task('package-clean', function() {
-  return del([packageName + '-' + platform + '-' + arch + '.zip', packageName + '-' + platform + '-' + arch + '/']);
+  return del([packageFullName() + '.zip', packageFullName() + '/']);
 });
 
 gulp.task('electron-package', ['package-clean', 'build'], function() {
@@ -97,7 +105,15 @@ gulp.task('electron-package', ['package-clean', 'build'], function() {
 
 gulp.task('package', ['electron-package'], function() {
   // Zip up the built package.
-  return gulp.src(packageName + '-' + platform + '-' + arch + '/**/*')
-    .pipe(zip(packageName + '-' + platform + '-' + arch + '.zip'))
-    .pipe(gulp.dest('.'));
+  if (platform === 'darwin') {
+    // For some reason zipping the app on OSX is broken because of gulp.src
+    // not following symlinks.  Just invoke the zip command line tool.
+    return shell('zip -r ' + packageFullName() + '.zip ' + packageFullName() + '/').exec();
+  }
+  else {
+    // Use gulp-zip to zip up the app.
+    return gulp.src(packageFullName() + '/**/*')
+      .pipe(zip(packageFullName() + '.zip'))
+      .pipe(gulp.dest('.'));
+  }
 });

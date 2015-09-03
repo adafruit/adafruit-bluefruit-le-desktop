@@ -28,6 +28,15 @@ function serializeDevice(device, index) {
   };
 }
 
+function disconnect() {
+  // Disconnect from any selected device.
+  if (selectedDevice !== null) {
+    selectedDevice.disconnect();
+    selectedDevice = null;
+    selectedIndex = null;
+  }
+}
+
 // Quit when all windows are closed.
 app.on('window-all-closed', function() {
   // On OS X it is common for applications and their menu bar
@@ -35,6 +44,11 @@ app.on('window-all-closed', function() {
   if (process.platform != 'darwin') {
     app.quit();
   }
+});
+
+app.on('quit', function() {
+  // Make sure device is disconnected before exiting.
+  disconnect();
 });
 
 // This method will be called when Electron has finished
@@ -50,11 +64,7 @@ app.on('ready', function() {
     // Start scanning for new BLE devices.
     // First clear out any known and selected devices.
     devices = [];
-    if (selectedDevice !== null) {
-      selectedDevice.disconnect();
-      selectedDevice = null;
-      selectedIndex = null;
-    }
+    disconnect();
     // Start scanning if already powered up.
     if (noble.state === 'poweredOn') {
       console.log('Starting scan... ');
@@ -160,7 +170,9 @@ app.on('ready', function() {
             uartRx = ch;
             uartRx.on('data', function(data) {
               //console.log('Received: ' + data);
-              mainWindow.webContents.send('uartRx', String(data));
+              if (mainWindow !== null) {
+                mainWindow.webContents.send('uartRx', String(data));
+              }
             });
             uartRx.notify(true);
           }
