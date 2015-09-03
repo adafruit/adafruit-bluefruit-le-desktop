@@ -78,7 +78,7 @@ gulp.task('native-build', ['install-dependencies', 'rebuild-bluetooth-hci-socket
   // task, therefore nothing needs to be done at this point for windows.
   if (platform !== 'win32') {
     // For other platforms just run electron rebuild.
-    return shell('cd app && electron-rebuild -v ' + electronVersion).exec();
+    return shell('electron-rebuild -v ' + electronVersion + ' -m ./app/node_modules/').exec();
   }
 });
 
