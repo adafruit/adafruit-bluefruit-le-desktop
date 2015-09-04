@@ -52,8 +52,9 @@ gulp.task('fix-node-usb', ['install-dependencies'], function() {
   // the variables that node-pre-gyp normally adds.  This is necessary because
   // node-pre-gyp doesn't work with electron.  See this issue:
   //   https://github.com/mapbox/node-pre-gyp/issues/166
-  // Only run this task on windows.
-  if (platform === 'win32') {
+  // Only run this task on windows and linux where the bluetooth-hci-socket
+  // module is used by noble.
+  if (platform === 'win32' || platform === 'linux') {
     return gulp.src('app/node_modules/noble/node_modules/bluetooth-hci-socket/node_modules/usb/binding.gyp')
       .pipe(replace("'use_system_libusb%': 'false',", "'use_system_libusb%': 'false',\n'module_name': 'usb_bindings',\n'module_path': './src/binding',"))
       .pipe(gulp.dest('./app/node_modules/noble/node_modules/bluetooth-hci-socket/node_modules/usb/'));
@@ -62,16 +63,16 @@ gulp.task('fix-node-usb', ['install-dependencies'], function() {
 
 gulp.task('rebuild-usb', ['fix-node-usb'], function() {
   // Rebuild noble's usb module with the correct electron version.
-  // Only run this task on windows.
-  if (platform === 'win32') {
+  // Only run this task on windows and linux.
+  if (platform === 'win32' || platform === 'linux') {
     return shell('cd app/node_modules/noble/node_modules/bluetooth-hci-socket/node_modules/usb && node-gyp rebuild --target=' + electronVersion + ' --dist-url=https://atom.io/download/atom-shell').exec();
   }
 });
 
 gulp.task('rebuild-bluetooth-hci-socket', ['rebuild-usb'], function() {
   // Rebuild noble's bluetooth-hci-socket module with the correct electron version.
-  // Only run this task on windows.
-  if (platform === 'win32') {
+  // Only run this task on windows and linux.
+  if (platform === 'win32' || platform === 'linux') {
     return shell('cd app/node_modules/noble/node_modules/bluetooth-hci-socket && node-gyp rebuild --target=' + electronVersion + ' --dist-url=https://atom.io/download/atom-shell').exec();
   }
 });
@@ -84,8 +85,8 @@ gulp.task('native-build', ['install-dependencies', 'rebuild-bluetooth-hci-socket
   // electron version.  Gulp is horrible at representing this multi-step
   // syncronous process as it has to be encoded in the dependencies for this
   // task, therefore nothing needs to be done at this point for windows.
-  if (platform !== 'win32') {
-    // For other platforms just run electron rebuild.
+  if (platform === 'darwin') {
+    // For Mac OSX just run electron-rebuild as it works fine on noble's OSX dependencies.
     return shell('electron-rebuild -v ' + electronVersion + ' -m ./app/node_modules/').exec();
   }
 });
