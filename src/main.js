@@ -1,19 +1,17 @@
-var app = require('app');
-var BrowserWindow = require('browser-window');
-var ipc = require('ipc');
-var noble = require('noble');
-
-// Report crashes to our server.
-//require('crash-reporter').start();
+// Import required dependencies.
+import app from 'app';
+import BrowserWindow from 'browser-window';
+import ipc from 'ipc';
+import noble from 'noble';
 
 
 // Global state:
-var devices = [];             // List of known devices.
-var selectedIndex = null;     // Currently selected/connected device index.
-var selectedDevice = null;    // Currently selected device.
-var uartRx = null;            // Connected device UART RX char.
-var uartTx = null;            // Connected device UART TX char.
-
+let devices = [];             // List of known devices.
+let selectedIndex = null;     // Currently selected/connected device index.
+let selectedDevice = null;    // Currently selected device.
+let uartRx = null;            // Connected device UART RX char.
+let uartTx = null;            // Connected device UART TX char.
+let mainWindow = null;
 
 function serializeDevice(device, index) {
   // Prepare a Noble device for serialization to send to a renderer process.
@@ -90,7 +88,7 @@ app.on('ready', function() {
 
   ipc.on('getDevice', function(event, index) {
     // Retrieve the selected device by index.
-    var device = devices[index];
+    let device = devices[index];
     event.returnValue = serializeDevice(device, index);
   });
 
@@ -98,7 +96,7 @@ app.on('ready', function() {
     // Retrieve list of all services and characteristics for a device with
     // the specified index.  This will be an array of service objects where each
     // one looks like:
-    //  { uuid: <service uuid, either short or long>, 
+    //  { uuid: <service uuid, either short or long>,
     //    name: <friendly service name, if known>,
     //    type: <service type, if known>
     //    characteristics: [<list of characteristics (see below)>] }
@@ -110,8 +108,8 @@ app.on('ready', function() {
     //    type: <char type, if known>
     //    properties: [<list of properties for the char>]
     //  }
-    var device = devices[index];
-    var services = device.services.map(function(s) {
+    let device = devices[index];
+    let services = device.services.map(function(s) {
       return {
         uuid: s.uuid,
         name: s.name,
@@ -197,7 +195,7 @@ app.on('ready', function() {
   });
 
   // Start in the scanning mode.
-  mainWindow.loadUrl('file://' + __dirname + '/app.html#scan');
+  mainWindow.loadUrl('file://' + __dirname + '/../app.html#scan');
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {

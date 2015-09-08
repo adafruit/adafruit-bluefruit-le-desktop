@@ -1,6 +1,5 @@
 import React from 'react'
-import Router from 'react-router'
-import {Route, RouteHandler} from 'react-router'
+import Router, {Route, RouteHandler} from 'react-router'
 import Scan from './components/scan.js'
 import Connect from './components/connect.js'
 import Information from './components/information.js'

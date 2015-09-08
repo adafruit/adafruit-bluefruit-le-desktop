@@ -7,7 +7,7 @@ var del = require('del'),
     shell = require('gulp-run'),
     sourcemaps = require("gulp-sourcemaps"),
     zip = require('gulp-zip');
-    
+
 // Global variables to control build.
 var electronVersion = '0.30.4',
     packageName = 'able',
@@ -30,7 +30,7 @@ gulp.task('dist-clean', function() {
 
 gulp.task('js-build', ['dist-clean'], function() {
   // Convert all the ES6 & JSX files to plain ES5 using babel.
-  return gulp.src(['src/**/*.jsx'])
+  return gulp.src(['src/**/*.jsx', 'src/**/*.js'])
     .pipe(sourcemaps.init())
     .pipe(babel())
     .pipe(sourcemaps.write("."))
