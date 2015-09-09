@@ -57,7 +57,7 @@ export default class Scan extends React.Component {
         </ul>
         <hr/>
         <div className='panel panel-default'>
-          <div className='panel-heading'>Found Devices</div>
+          <div className='panel-heading'>Discovered Devices</div>
           <div className='panel-body'>
             <p>Bluetooth low energy devices will be shown below as they are found.
             Click a device to connect and interact with it.</p>
