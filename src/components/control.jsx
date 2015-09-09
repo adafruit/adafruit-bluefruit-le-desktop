@@ -2,17 +2,7 @@
 import React from 'react'
 import ipc from 'ipc'
 import DeviceView from './deviceview.js'
-
-
-function checksum8(data) {
-  // Compute 8-bit checksum of the provided string and return it.
-  let checksum = 0;
-  for (let i=0; i<data.length; ++i) {
-    checksum += data.charCodeAt(i);
-    checksum &= 0xff;
-  }
-  return ~checksum & 0xff;
-}
+import {buildCommand} from '../commands.js'
 
 
 export default class Control extends React.Component {
@@ -26,17 +16,13 @@ export default class Control extends React.Component {
   mouseDown(event) {
     // Use event.currentTarget.value instead of event.target.value because of
     // this react bug: https://github.com/facebook/react/issues/4288
-    let command = '!B' + event.currentTarget.value + '1';
-    command += String.fromCharCode(checksum8(command));
-    ipc.send('uartTx', command);
+    ipc.send('uartTx', buildCommand('B', String(event.currentTarget.value) + '1'));
   }
 
   mouseUp(event) {
     // Use event.currentTarget.value instead of event.target.value because of
     // this react bug: https://github.com/facebook/react/issues/4288
-    let command = '!B' + event.currentTarget.value + '0';
-    command += String.fromCharCode(checksum8(command));
-    ipc.send('uartTx', command);
+    ipc.send('uartTx', buildCommand('B', String(event.currentTarget.value) + '0'));
   }
 
   render(){

@@ -1,3 +1,4 @@
+// Application route definitions.
 import React from 'react'
 import Router, {Route, RouteHandler} from 'react-router'
 import Scan from './components/scan.js'

@@ -1,4 +1,10 @@
-// Import required dependencies.
+// Main application code.  The entry point for the application is here.
+// In general this app code will open the appropriate 'page' (#-path for react
+// router) and let react control most of the application logic.  For any
+// interaction with noble/BLE hardware the page will make IPC calls to this
+// functions that this app code exposes.  The main program state of which
+// device is connected, which devices have been discovered, etc. lives in this
+// code.
 import app from 'app';
 import BrowserWindow from 'browser-window';
 import dialog from 'dialog';
@@ -13,7 +19,7 @@ let selectedIndex = null;     // Currently selected/connected device index.
 let selectedDevice = null;    // Currently selected device.
 let uartRx = null;            // Connected device UART RX char.
 let uartTx = null;            // Connected device UART TX char.
-let mainWindow = null;
+let mainWindow = null;        // Main rendering window.
 
 
 function runningAsRoot() {
@@ -50,10 +56,10 @@ function disconnect() {
   }
 }
 
-// Quit when all windows are closed.
 app.on('window-all-closed', function() {
+  // Quit when all windows are closed.
   // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
+  // to stay active until the user quits explicitly with Cmd + Q.
   if (process.platform != 'darwin') {
     app.quit();
   }
@@ -64,9 +70,11 @@ app.on('quit', function() {
   disconnect();
 });
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
+
 app.on('ready', function() {
+  // This method will be called when Electron has finished
+  // initialization and is ready to create browser windows.
+
   // Check running as root on Linux (usually required for noble).
   if (os.platform() === 'linux' && !runningAsRoot()) {
     // Throw an error dialog when not running as root.
@@ -201,10 +209,10 @@ app.on('ready', function() {
   });
 
   ipc.on('uartTx', function(event, data) {
+    // Data is sent from the renderer process out the BLE UART (if connected).
     if (uartTx !== null) {
       console.log('Send: ' + data);
       uartTx.write(new Buffer(data));
-      //TODO: Allow configurable addition of \r\n.
     }
   });
 
@@ -218,8 +226,8 @@ app.on('ready', function() {
   // Start in the scanning mode.
   mainWindow.loadUrl('file://' + __dirname + '/../app.html#scan');
 
-  // Emitted when the window is closed.
   mainWindow.on('closed', function() {
+    // Emitted when the window is closed.
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
