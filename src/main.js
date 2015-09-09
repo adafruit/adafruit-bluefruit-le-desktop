@@ -1,8 +1,10 @@
 // Import required dependencies.
 import app from 'app';
 import BrowserWindow from 'browser-window';
+import dialog from 'dialog';
 import ipc from 'ipc';
 import noble from 'noble';
+import os from 'os';
 
 
 // Global state:
@@ -12,6 +14,19 @@ let selectedDevice = null;    // Currently selected device.
 let uartRx = null;            // Connected device UART RX char.
 let uartTx = null;            // Connected device UART TX char.
 let mainWindow = null;
+
+
+function runningAsRoot() {
+  // Check if the user is running as root on a POSIX platform (Linux/OSX).
+  // Returns true if it can be determined the user is running as root, otherwise
+  // false.
+  if (os.platform() === 'linux' || os.platform() === 'darwin') {
+    return process.getuid() === 0;
+  }
+  else {
+    return false;
+  }
+}
 
 function serializeDevice(device, index) {
   // Prepare a Noble device for serialization to send to a renderer process.
@@ -52,6 +67,12 @@ app.on('quit', function() {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
+  // Check running as root on Linux (usually required for noble).
+  if (os.platform() === 'linux' && !runningAsRoot()) {
+    // Throw an error dialog when not running as root.
+    dialog.showErrorBox('Adafruit Bluefruit LE Desktop', 'WARNING: This program should be run as a root user with sudo!');
+  }
+
   // Create the browser window.
   mainWindow = new BrowserWindow({width: 1000, height: 800});
 
