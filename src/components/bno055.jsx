@@ -4,6 +4,7 @@ import ipc from 'ipc'
 import DeviceView from './deviceview.js'
 
 
+// Useful conversion functions.
 function degToRad(deg) {
   // Convert degrees to radians.
   return deg * Math.PI / 180.0;
@@ -14,15 +15,18 @@ function radToDeg(radians) {
   return radians * 180.0 / Math.PI;
 }
 
-// Loaders
+
+// Global state that never changes.
+let sceneWidth = 640;
+let sceneHeight = 480;
 let objMTLLoader = new THREE.OBJMTLLoader();
 let stlLoader = new THREE.STLLoader();
-
-// White material for the models.
-let material = new THREE.MeshPhongMaterial({ color: 0xffffff });
-
+let material = { color: 0xffffff };  // White material for the models.
 // List of models and how to load them.
-let models = [
+// Each model should have a name attribute and load function.  The load function
+// takes in a model object and should add a node attribute that is a three.js
+// scene node to represent the model.
+let modelList = [
   {
     name: 'Bunny',
     load: function(model) {
@@ -33,9 +37,9 @@ let models = [
           geom.computeFaceNormals();
           geom.computeVertexNormals();
           // Build bunny mesh from geometry and material.
-          model.model = new THREE.Mesh(geom, material);
+          model.node = new THREE.Mesh(geom, new THREE.MeshPhongMaterial(material));
           // Move the bunny so it's roughly in the center of the screen.
-          model.model.position.y = -4;
+          model.node.position.y = -4;
         }
       );
     }
@@ -49,11 +53,11 @@ let models = [
           geometry.computeFaceNormals();
           geometry.computeVertexNormals();
           // Load the model and build mesh.
-          model.model = new THREE.Mesh(geometry, material);
+          model.node = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial(material));
           // Rotate, scale, and move so the cat is facing out the screen.
-          model.model.rotation.x = -90 * (Math.PI / 180.0);
-          model.model.scale.set(0.15, 0.15, 0.15);
-          model.model.position.y = -4;
+          model.node.rotation.x = -90 * (Math.PI / 180.0);
+          model.node.scale.set(0.15, 0.15, 0.15);
+          model.node.position.y = -4;
         }
       );
     }
@@ -62,18 +66,19 @@ let models = [
     name: 'XYZ Axes',
     load: function(model) {
       // Build some cylinders and rotate them to form a cross of the XYZ axes.
-      model.model = new THREE.Group();
+      let modelMaterial = new THREE.MeshPhongMaterial(material);
+      model.node = new THREE.Group();
       let xAxis = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 7, 32, 32),
-                                     material);
+                                 modelMaterial);
       xAxis.rotation.z = 90.0*(Math.PI/180.0);
-      model.model.add(xAxis);
+      model.node.add(xAxis);
       let yAxis = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 7, 32, 32),
-                                     material);
-      model.model.add(yAxis);
+                                 modelMaterial);
+      model.node.add(yAxis);
       let zAxis = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 7, 32, 32),
-                                     material);
+                                 modelMaterial);
       zAxis.rotation.x = 90.0*(Math.PI/180.0);
-      model.model.add(zAxis);
+      model.node.add(zAxis);
     }
   }
 ];
@@ -84,7 +89,7 @@ export default class BNO055 extends React.Component {
   constructor() {
     super();
     // Set initial state.
-    this.state = { 
+    this.state = {
       bnoData: {
         quatX: 1,
         quatY: 1,
@@ -99,41 +104,33 @@ export default class BNO055 extends React.Component {
         calMag: 1
       }
     };
-    this.buffer = '';
-    this.sceneWidth = 640;
-    this.sceneHeight = 480;
-    this.isRendering = false;
     // Bind functions that need to access state.
     this.renderScene = this.renderScene.bind(this);
     this.setupScene = this.setupScene.bind(this);
     this.straighten = this.straighten.bind(this);
     this.modelChange = this.modelChange.bind(this);
     this.uartRx = this.uartRx.bind(this);
-    // Load all the 3D models.
-    $.each(models, function(index, model) {
-      // Kick off loading the model.
-      model.load(model);
-    });
   }
 
   straighten() {
     // Re-orient the 3D model so it's facing forward based on the current
     // BNO sensor orientation.
-    let currentQuat = new THREE.Quaternion(this.state.bnoData.quatX, 
+    let currentQuat = new THREE.Quaternion(this.state.bnoData.quatX,
       this.state.bnoData.quatY, this.state.bnoData.quatZ, this.state.bnoData.quatW);
     this.offset.quaternion.copy(currentQuat.conjugate());
   }
 
-  modelChange() {
+  modelChange(event) {
     // Change the selected 3D model.
     // Remove the old model.
-    this.orientation.remove(models[this.currentModel].model);
+    this.orientation.remove(this.currentModel);
     // Update the current model and add it to the scene.
-    this.currentModel = $('#model')[0].selectedIndex;
-    this.orientation.add(models[this.currentModel].model);
+    this.currentModel = this.models[event.target.value].node;
+    this.orientation.add(this.currentModel);
   }
 
   uartRx(data) {
+    // Read BNO055 readings from the BLE UART.
     // Add the received data to the buffer.
     if (data === null) {
       return;
@@ -190,19 +187,22 @@ export default class BNO055 extends React.Component {
 
   renderScene() {
     // Main rendering function.
-    if (this.isRendering) {
-      window.requestAnimationFrame(this.renderScene);
+    // Stop if the renderer was destroyed (i.e. the view is shutting down).
+    if (this.renderer === null) {
+      return;
     }
+    // Kick off continual rendering of frames.
+    window.requestAnimationFrame(this.renderScene);
     // Switch to the first model once it's loaded.
     if (this.currentModel === null) {
-      if (models[0].hasOwnProperty('model')) {
-        this.currentModel = 0;
-        this.orientation.add(models[0].model);
+      if (this.models[0].hasOwnProperty('node')) {
+        this.currentModel = this.models[0].node;
+        this.orientation.add(this.currentModel);
       }
     }
-    //// Update the orientation with the last BNO sensor reading quaternion.
+    // Update the orientation with the last BNO sensor reading quaternion.
     if (this.state.bnoData !== null) {
-      this.orientation.quaternion.set(this.state.bnoData.quatX, this.state.bnoData.quatY, 
+      this.orientation.quaternion.set(this.state.bnoData.quatX, this.state.bnoData.quatY,
         this.state.bnoData.quatZ, this.state.bnoData.quatW);
     }
     this.renderer.render(this.scene, this.camera);
@@ -211,14 +211,14 @@ export default class BNO055 extends React.Component {
   setupScene() {
     // Setup Three.js scene and camera.
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(75, this.sceneWidth / this.sceneHeight, 0.1, 1000);
+    this.camera = new THREE.PerspectiveCamera(75, sceneWidth / sceneHeight, 0.1, 1000);
     // Start with the camera moved back a bit to look directly at the origin.
     this.camera.position.z = 10;
 
     // Setup Three.js WebGL renderer and add it to the page.
     this.renderer = new THREE.WebGLRenderer();
-    this.renderer.setSize(this.sceneWidth, this.sceneHeight);
-    this.renderer.setClearColor(0xff0000, 0);
+    this.renderer.setSize(sceneWidth, sceneHeight);
+    this.renderer.setClearColor(0x000000, 0);
     $('#renderer').append(this.renderer.domElement);
     $('#renderer canvas').addClass('center-block');  // Center the renderer.
 
@@ -245,36 +245,43 @@ export default class BNO055 extends React.Component {
     this.offset.add(this.orientation);
     this.scene.add(this.offset);
 
-    // Populate drop-down of 3D models and load all the models.
-    $.each(models, function(index, model) {
-      // Populate drop-down.
-      $('#model').append($("<option />").val(index).text(model.name));
+    // Load all the 3D models.  This needs to be done every time the scene is
+    // setup because three.js can't share models, materials, etc. between
+    // renderer instances.
+    this.models = modelList.map(function(m) {
+      // Create an object to hold the loaded model, then kick off the model loading.
+      let model = {};
+      m.load(model);
+      return model;
     });
 
-    // Clear out the currently selected model, will default back to the bunny.
+    // Clear out the currently selected model, will default back to the bunny
+    // when rendered (and the model finishes loading).
     this.currentModel = null;
   }
 
   componentDidMount() {
     // Setup scene and start rendering.
     this.setupScene();
-    this.isRendering = true;
     this.renderScene();
-    // Setup async events that will change state of this component.
+    // Setup UART received event to decode BNO055 readings.
+    this.buffer = '';
     ipc.on('uartRx', this.uartRx);
   }
 
   componentWillUnmount() {
+    // Be careful to make sure state changes aren't triggered by turning off listeners.
+    ipc.removeListener('uartRx', this.uartRx);
     // Stop rendering and remove the renderer and other state.
-    this.isRendering = false;
+    this.renderer = null;
     $('#renderer').empty();
     this.scene = null;
     this.camera = null;
-    this.renderer = null;
     this.orientation = null;
     this.offset = null;
-    // Be careful to make sure state changes aren't triggered by turning off listeners.
-    ipc.removeListener('uartRx', this.uartRx);
+    this.buffer = '';
+    this.models = null;
+    this.currentModel = null;
   }
 
   render() {
@@ -306,7 +313,10 @@ export default class BNO055 extends React.Component {
             <form>
               <div className='form-group'>
                 <label htmlFor='model'>Model:</label>
-                <select className='form-control' id='model' onChange={this.modelChange}>
+                <select className='form-control' onChange={this.modelChange}>
+                  {modelList.map((m, index) =>
+                    <option value={index} key={index}>{m.name}</option>
+                  )}
                 </select>
               </div>
               <div className='form-group'>
