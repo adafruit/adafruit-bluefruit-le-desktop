@@ -16,13 +16,15 @@ export default class Control extends React.Component {
   mouseDown(event) {
     // Use event.currentTarget.value instead of event.target.value because of
     // this react bug: https://github.com/facebook/react/issues/4288
-    ipc.send('uartTx', buildCommand('B', String(event.currentTarget.value) + '1'));
+    let data = [String(event.currentTarget.value).charCodeAt(), '1'.charCodeAt()];
+    ipc.send('uartTx', buildCommand('B', data));
   }
 
   mouseUp(event) {
     // Use event.currentTarget.value instead of event.target.value because of
     // this react bug: https://github.com/facebook/react/issues/4288
-    ipc.send('uartTx', buildCommand('B', String(event.currentTarget.value) + '0'));
+    let data = [String(event.currentTarget.value).charCodeAt(), '0'.charCodeAt()];
+    ipc.send('uartTx', buildCommand('B', data));
   }
 
   render(){

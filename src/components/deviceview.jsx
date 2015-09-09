@@ -37,11 +37,14 @@ export default class DeviceView extends React.Component {
             <li role='presentation' className={this.props.header === 'Control' ? 'active' : ''}>
               <Link to='control' params={{index: this.props.index}}>Control</Link>
             </li>
+            <li role='presentation' className={this.props.header === 'Color' ? 'active' : ''}>
+              <Link to='color' params={{index: this.props.index}}>Color</Link>
+            </li>
             <li role='presentation' className={this.props.header === 'BNO-055' ? 'active' : ''}>
               <Link to='bno055' params={{index: this.props.index}}>BNO-055</Link>
             </li>
-            <li role='presentation' className={this.props.header === 'Sensor' ? 'active' : ''}>
-              <Link to='sensor' params={{index: this.props.index}}>Sensor</Link>
+            <li role='presentation' className={this.props.header === 'About' ? 'active' : ''}>
+              <Link to='about' params={{index: this.props.index}}>About</Link>
             </li>
           </ul>
         </div>
