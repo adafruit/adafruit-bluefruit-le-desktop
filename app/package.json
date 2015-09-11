@@ -1,6 +1,6 @@
 {
   "name": "adafruit-ble-desktop",
-  "version": "1.0.0",
+  "version": "0.1.0-beta",
   "description": "Application to interact with Adafruit Bluefruit LE and other Bluetooth low energy devices.",
   "main": "dist/main.js",
   "keywords": [

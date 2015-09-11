@@ -8,11 +8,16 @@ var del = require('del'),
     sourcemaps = require("gulp-sourcemaps"),
     zip = require('gulp-zip');
 
+// Load the app package.json to read its version.
+var app = require('./app/package.json')
+
+
 // Global variables to control build.
 var electronVersion = '0.30.4',
     packageName = 'able',
     platform = os.platform(),
-    arch = os.arch();
+    arch = os.arch(),
+    appVersion = app.version;
 
 
 function packageFullName() {
@@ -109,12 +114,12 @@ gulp.task('package', ['electron-package'], function() {
   if (platform === 'darwin') {
     // For some reason zipping the app on OSX is broken because of gulp.src
     // not following symlinks.  Just invoke the zip command line tool.
-    return shell('zip -r ' + packageFullName() + '.zip ' + packageFullName() + '/').exec();
+    return shell('zip -r ' + packageFullName() + '-' + appVersion + '.zip ' + packageFullName() + '/').exec();
   }
   else {
     // Use gulp-zip to zip up the app.
     return gulp.src(packageFullName() + '/**/*')
-      .pipe(zip(packageFullName() + '.zip'))
+      .pipe(zip(packageFullName() + '-' + appVersion + '.zip'))
       .pipe(gulp.dest('.'));
   }
 });
