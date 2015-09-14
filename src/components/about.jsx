@@ -23,6 +23,7 @@ export default class About extends React.Component {
           <li><a href='https://github.com/rackt/react-router' target='_blank'>React-Router</a></li>
           <li><a href='http://threejs.org/' target='_blank'>three.js</a></li>
           <li><a href='http://getbootstrap.com/' target='_blank'>Bootstrap</a></li>
+          <li><a href='https://bootswatch.com/' target='_blank'>Bootswatch Cyborg theme</a></li>
           <li><a href='https://jquery.com/' target='_blank'>jQuery</a></li>
         </ul>
         <p>Copyright (c) 2015 Adafruit Industries</p>
@@ -41,6 +42,8 @@ export default class About extends React.Component {
           LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
           OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
           SOFTWARE.</p>
+        <p>See the included LICENSE file for a complete list of dependencies
+        and their licenses.</p>
       </DeviceView>
     );
   }
