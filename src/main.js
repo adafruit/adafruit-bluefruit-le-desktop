@@ -232,17 +232,22 @@ app.on('ready', function() {
     mainWindow.webContents.send('devicesChanged', devices.map(serializeDevice));
   });
 
-  // Start in the scanning mode.
-  mainWindow.loadUrl('file://' + __dirname + '/../app.html#loading');
-
-  // Jump to scanning mode when powered on.  Make sure to do this only after
-  // showing the loading page or else there could be a race condition where
-  // the scan finishes and the loading page is displayed.
-  noble.on('stateChange', function(state) {
-    if (state === 'poweredOn') {
-      mainWindow.loadUrl('file://' + __dirname + '/../app.html#scan');
-    }
-  });
+  // Start in the scanning mode if powered on, otherwise start in loading
+  // mode and wait to power on before scanning.
+  if (noble.state === 'poweredOn') {
+    mainWindow.loadUrl('file://' + __dirname + '/../app.html#scan');
+  }
+  else {
+    mainWindow.loadUrl('file://' + __dirname + '/../app.html#loading');
+    // Jump to scanning mode when powered on.  Make sure to do this only after
+    // showing the loading page or else there could be a race condition where
+    // the scan finishes and the loading page is displayed.
+    noble.on('stateChange', function(state) {
+      if (state === 'poweredOn') {
+        mainWindow.loadUrl('file://' + __dirname + '/../app.html#scan');
+      }
+    });
+  }
 
   // Open dev tools if --dev parameter is passed in.
   if (process.argv.indexOf('--dev') !== -1) {

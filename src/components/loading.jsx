@@ -1,20 +1,14 @@
 // Loading screen view, warns when no BLE adapter is available.
 import React from 'react';
-import remote from 'remote';
-import router from '../app.js';
 import SingleColumnView from './singlecolumnview.js';
 
 
 export default class Loading extends React.Component {
   componentDidMount() {
-    // Start with error message hidden.
+    // Start with error message hidden, then wait 5 seconds to display it.
+    // This gives some time for the adapter to power on and the page to be
+    // changed to scanning (by main.js).
     $('#load-error').hide();
-    // Check if noble is powered on and redirect to scanning.
-    let noble = remote.require('noble');
-    if (noble.state === 'poweredOn') {
-      router.transitionTo('scan');
-    }
-    // Otherwise set a 5 second timer to display if noble still hasn't powered on.
     setTimeout(function() {
       $('#load-error').show();
     }, 5000);
