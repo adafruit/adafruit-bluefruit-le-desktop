@@ -56,6 +56,7 @@ debug (2.2.0) ── MIT License (https://spdx.org/licenses/MIT) ── node_mod
 deep-extend (0.2.11) ── MIT License (https://spdx.org/licenses/MIT) ── node_modules/noble ~ bluetooth-hci-socket ~ usb ~ node-pre-gyp ~ rc ~ deep-extend/package.json
 delayed-stream (0.0.5) ── MIT License (https://spdx.org/licenses/MIT) ── node_modules/noble ~ bluetooth-hci-socket ~ usb ~ node-pre-gyp ~ request ~ combined-stream ~ delayed-stream/License
 delegates (0.1.0) ── MIT License (https://spdx.org/licenses/MIT) ── node_modules/noble ~ bluetooth-hci-socket ~ usb ~ node-pre-gyp ~ npmlog ~ are-we-there-yet ~ delegates/package.json
+electron (0.30.4) ── MIT License (https://spdx.org/licenses/MIT)
 envify (3.4.0) ── MIT License (https://spdx.org/licenses/MIT) ── node_modules/react ~ envify/package.json
 escape-string-regexp (1.0.3) ── MIT License (https://spdx.org/licenses/MIT) ── node_modules/noble ~ bluetooth-hci-socket ~ usb ~ node-pre-gyp ~ request ~ har-validator ~ chalk ~ escape-string-regexp/package.json
 esprima-fb (13001.1001.0-dev-harmony-fb) ── BSD (http://github.com/facebook/esprima/raw/master/LICENSE.BSD) ── node_modules/react ~ envify ~ jstransform ~ esprima-fb/package.json
@@ -1159,6 +1160,31 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+--------------------------------------------------------------------------------
+
+electron
+
+Copyright (c) 2014 GitHub Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 --------------------------------------------------------------------------------
 
