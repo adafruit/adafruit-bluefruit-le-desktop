@@ -1,9 +1,9 @@
 // View for the device scanning state.
-import React from 'react'
-import {Link} from 'react-router'
-import ipc from 'ipc'
-import SingleColumnView from './singlecolumnview.js'
-import StatusBar from './statusbar.js'
+import React from 'react';
+import {Link} from 'react-router';
+import ipc from 'ipc';
+import SingleColumnView from './singlecolumnview.js';
+import StatusBar from './statusbar.js';
 
 
 export default class Scan extends React.Component {

@@ -1,10 +1,10 @@
 // View for the device connecting state.
-import React from 'react'
-import {Link} from 'react-router'
-import ipc from 'ipc'
-import SingleColumnView from './singlecolumnview.js'
-import StatusBar from './statusbar.js'
-import router from '../app.js'
+import React from 'react';
+import {Link} from 'react-router';
+import ipc from 'ipc';
+import SingleColumnView from './singlecolumnview.js';
+import StatusBar from './statusbar.js';
+import router from '../app.js';
 
 
 export default class Connect extends React.Component {

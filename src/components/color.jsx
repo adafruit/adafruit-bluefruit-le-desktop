@@ -1,8 +1,8 @@
 // View for the color picker state.
-import React from 'react'
-import ipc from 'ipc'
-import DeviceView from './deviceview.js'
-import {buildCommand} from '../commands.js'
+import React from 'react';
+import ipc from 'ipc';
+import DeviceView from './deviceview.js';
+import {buildCommand} from '../commands.js';
 
 
 export default class Color extends React.Component {

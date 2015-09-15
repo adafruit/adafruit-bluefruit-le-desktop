@@ -78,11 +78,14 @@ app.on('ready', function() {
   // Check running as root on Linux (usually required for noble).
   if (os.platform() === 'linux' && !runningAsRoot()) {
     // Throw an error dialog when not running as root.
-    dialog.showErrorBox('Adafruit Bluefruit LE Desktop', 'WARNING: This program should be run as a root user with sudo!');
+    dialog.showErrorBox('Adafruit Bluefruit LE', 'WARNING: This program should be run as a root user with sudo!');
   }
 
   // Create the browser window.
   mainWindow = new BrowserWindow({width: 1000, height: 800});
+
+  // Disable the default menu.
+  mainWindow.setMenu(null);
 
   // ipc.on sets up an event handler so the renderer process (the webpage's
   // javascript) can 'call' functions in this main process.  These events are
@@ -92,21 +95,21 @@ app.on('ready', function() {
     // First clear out any known and selected devices.
     devices = [];
     disconnect();
-    // Start scanning if already powered up.
+    // Start scanning only if already powered up.
     if (noble.state === 'poweredOn') {
       console.log('Starting scan... ');
       noble.startScanning();
     }
-    // Otherwise wait until powered on and then start scan.
-    else {
-      console.log('Waiting to power on to start scan...');
-      noble.on('stateChange', function(state) {
-        if (state === 'poweredOn') {
-          console.log('Starting scan...');
-          noble.startScanning();
-        }
-      });
-    }
+    // // Otherwise wait until powered on and then start scan.
+    // else {
+    //   console.log('Waiting to power on to start scan...');
+    //   noble.on('stateChange', function(state) {
+    //     if (state === 'poweredOn') {
+    //       console.log('Starting scan...');
+    //       noble.startScanning();
+    //     }
+    //   });
+    // }
   });
 
   ipc.on('stopScan', function() {
@@ -160,7 +163,6 @@ app.on('ready', function() {
   ipc.on('deviceConnect', function(event, index) {
     // Start connecting to device at the specified index.
     // First get the selected device and save it for future reference.
-    console.log('Device connect to index ' + index + '...');
     selectedIndex = index;
     selectedDevice = devices[index];
     // Stop scanning and kick off connection to the device.
@@ -174,6 +176,13 @@ app.on('ready', function() {
         mainWindow.webContents.send('connectStatus', 'Status: Error!', 0);
         return;
       }
+      // When disconnected fall back to the scanning page.
+      selectedDevice.on('disconnect', function() {
+        // Keep selected device consistent by clearing it when disconnected.
+        selectedDevice = null;
+        selectedIndex = null;
+        mainWindow.loadUrl('file://' + __dirname + '/../app.html#scan');
+      });
       // Connected, now kick off service discovery.
       mainWindow.webContents.send('connectStatus', 'Status: Discovering Services...', 66);
       selectedDevice.discoverAllServicesAndCharacteristics(function(error, services, characteristics) {
@@ -224,7 +233,21 @@ app.on('ready', function() {
   });
 
   // Start in the scanning mode.
-  mainWindow.loadUrl('file://' + __dirname + '/../app.html#scan');
+  mainWindow.loadUrl('file://' + __dirname + '/../app.html#loading');
+
+  // Jump to scanning mode when powered on.  Make sure to do this only after
+  // showing the loading page or else there could be a race condition where
+  // the scan finishes and the loading page is displayed.
+  noble.on('stateChange', function(state) {
+    if (state === 'poweredOn') {
+      mainWindow.loadUrl('file://' + __dirname + '/../app.html#scan');
+    }
+  });
+
+  // Open dev tools if --dev parameter is passed in.
+  if (process.argv.indexOf('--dev') !== -1) {
+    mainWindow.openDevTools();
+  }
 
   mainWindow.on('closed', function() {
     // Emitted when the window is closed.

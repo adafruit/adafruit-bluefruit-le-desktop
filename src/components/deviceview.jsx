@@ -1,7 +1,7 @@
 // Main device view with links to various device interactions.
-import React from 'react'
-import {Link} from 'react-router'
-import ipc from 'ipc'
+import React from 'react';
+import {Link} from 'react-router';
+import ipc from 'ipc';
 
 
 export default class DeviceView extends React.Component {
@@ -42,9 +42,6 @@ export default class DeviceView extends React.Component {
             </li>
             <li role='presentation' className={this.props.header === 'BNO-055' ? 'active' : ''}>
               <Link to='bno055' params={{index: this.props.index}}>BNO-055</Link>
-            </li>
-            <li role='presentation' className={this.props.header === 'About' ? 'active' : ''}>
-              <Link to='about' params={{index: this.props.index}}>About</Link>
             </li>
           </ul>
         </div>

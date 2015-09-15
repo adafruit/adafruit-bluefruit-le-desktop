@@ -19,9 +19,5 @@ export function buildCommand(type, data) {
     command = command.concat(data);
   }
   command.push(checksum8(command));
-  console.log('command bytes');
-  for (var i=0; i < command.length; ++i) {
-    console.log(command[i]);
-  }
   return command;
 }

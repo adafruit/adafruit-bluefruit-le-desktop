@@ -1,8 +1,8 @@
 // View for the device information state.
-import React from 'react'
-import {Link} from 'react-router'
-import ipc from 'ipc'
-import DeviceView from './deviceview.js'
+import React from 'react';
+import {Link} from 'react-router';
+import ipc from 'ipc';
+import DeviceView from './deviceview.js';
 
 
 export default class Information extends React.Component {

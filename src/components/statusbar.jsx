@@ -1,5 +1,5 @@
 // Status bar that displays a string of status text and animated progress bar.
-import React from 'react'
+import React from 'react';
 
 
 export default class StatusBar extends React.Component {
@@ -23,7 +23,7 @@ export default class StatusBar extends React.Component {
       <div>
         <h4>{this.state.status}</h4>
         <div className='progress'>
-          <div className='progress-bar progress-bar-striped active' role='progressbar' 
+          <div className='progress-bar progress-bar-striped active' role='progressbar'
                aria-valuenow={this.state.progress} aria-valuemin='0' aria-valuemax='100'
                style={{width:  this.state.progress + '%'}}>
           </div>

@@ -1,7 +1,7 @@
 // View for the device UART state.
-import React from 'react'
-import ipc from 'ipc'
-import DeviceView from './deviceview.js'
+import React from 'react';
+import ipc from 'ipc';
+import DeviceView from './deviceview.js';
 
 
 // Useful conversion functions.
