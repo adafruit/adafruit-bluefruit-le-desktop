@@ -47,6 +47,42 @@ function serializeDevice(device, index) {
   };
 }
 
+function serializeServices(index) {
+  // Prepare all the services & characteristics for a device to be serialized
+  // and sent to the rendering process.  This will be an array of service objects
+  // where each one looks like:
+  //  { uuid: <service uuid, either short or long>,
+  //    name: <friendly service name, if known>,
+  //    type: <service type, if known>
+  //    characteristics: [<list of characteristics (see below)>] }
+  //
+  // For each service its characteristics attribute will be a list of
+  // characteristic objects that look like:
+  //  { uuid: <char uuid>,
+  //    name: <char name, if known>
+  //    type: <char type, if known>
+  //    properties: [<list of properties for the char>],
+  //    value: <last known characteristic value, or undefined if not known>
+  //  }
+  let device = devices[index];
+  let services = device.services.map(function(s) {
+    return {
+      uuid: s.uuid,
+      name: s.name,
+      type: s.type,
+      characteristics: s.characteristics.map(function(c) {
+        return {
+          uuid: c.uuid,
+          name: c.name,
+          type: c.type,
+          properties: c.properties
+        };
+      })
+    };
+  });
+  return services;
+}
+
 function disconnect() {
   // Disconnect from any selected device.
   if (selectedDevice !== null) {
@@ -105,16 +141,6 @@ app.on('ready', function() {
       console.log('Starting scan... ');
       noble.startScanning();
     }
-    // // Otherwise wait until powered on and then start scan.
-    // else {
-    //   console.log('Waiting to power on to start scan...');
-    //   noble.on('stateChange', function(state) {
-    //     if (state === 'poweredOn') {
-    //       console.log('Starting scan...');
-    //       noble.startScanning();
-    //     }
-    //   });
-    // }
   });
 
   ipc.on('stopScan', function() {
@@ -131,41 +157,12 @@ app.on('ready', function() {
 
   ipc.on('getServices', function(event, index) {
     // Retrieve list of all services and characteristics for a device with
-    // the specified index.  This will be an array of service objects where each
-    // one looks like:
-    //  { uuid: <service uuid, either short or long>,
-    //    name: <friendly service name, if known>,
-    //    type: <service type, if known>
-    //    characteristics: [<list of characteristics (see below)>] }
-    //
-    // For each service its characteristics attribute will be a list of
-    // characteristic objects that look like:
-    //  { uuid: <char uuid>,
-    //    name: <char name, if known>
-    //    type: <char type, if known>
-    //    properties: [<list of properties for the char>]
-    //  }
-    let device = devices[index];
-    let services = device.services.map(function(s) {
-      return {
-        uuid: s.uuid,
-        name: s.name,
-        type: s.type,
-        characteristics: s.characteristics.map(function(c) {
-          return {
-            uuid: c.uuid,
-            name: c.name,
-            type: c.type,
-            properties: c.properties,
-            descriptors: []
-          }
-        })
-      };
-    });
-    event.returnValue = services;
+    // the specified index.
+    event.returnValue = serializeServices(index);
   });
 
   ipc.on('deviceConnect', function(event, index) {
+    // TODO: Refactor the callbacks below to use promises and not turn into callback hell.
     // Start connecting to device at the specified index.
     // First get the selected device and save it for future reference.
     selectedIndex = index;
@@ -201,25 +198,28 @@ app.on('ready', function() {
         // Note that setting progress to 100 will cause the page to change to
         // the information page.
         mainWindow.webContents.send('connectStatus', 'Status: Connected!', 100);
-        // Find UART characteristics if they exist.
-        characteristics.forEach(function(ch) {
-          //log('Char: ' + characteristics[i]);
-          if (ch.uuid === '6e400002b5a3f393e0a9e50e24dcca9e') {
-            uartTx = ch;
-          }
-          else if (ch.uuid === '6e400003b5a3f393e0a9e50e24dcca9e') {
-            uartRx = ch;
-            uartRx.on('data', function(data) {
-              //console.log('Received: ' + data);
-              if (mainWindow !== null) {
-                mainWindow.webContents.send('uartRx', String(data));
-              }
-            });
-            uartRx.notify(true);
-          }
+        // Process all the characteristics.
+        services.forEach(function(s, serviceId) {
+          s.characteristics.forEach(function(ch, charId) {
+            // Search for the UART TX and RX characteristics and save them.
+            if (ch.uuid === '6e400002b5a3f393e0a9e50e24dcca9e') {
+              uartTx = ch;
+            }
+            else if (ch.uuid === '6e400003b5a3f393e0a9e50e24dcca9e') {
+              uartRx = ch;
+              // Setup the RX characteristic to receive data updates and update
+              // the UI.
+              uartRx.on('data', function(data) {
+                if (mainWindow !== null) {
+                  mainWindow.webContents.send('uartRx', String(data));
+                }
+              });
+              uartRx.notify(true);
+            }
+          });
         });
       });
-    })
+    });
   });
 
   ipc.on('uartTx', function(event, data) {
@@ -227,6 +227,25 @@ app.on('ready', function() {
     if (uartTx !== null) {
       console.log('Send: ' + data);
       uartTx.write(new Buffer(data));
+    }
+  });
+
+  ipc.on('readChar', function(event, serviceId, charId) {
+    // Request a characteristic value to be read.
+    if (selectedIndex !== null) {
+      // Grab the selected device, find the characteristic (based on its parent
+      // service index), and call its read function to kick off the read.
+      let device = devices[selectedIndex];
+      device.services[serviceId].characteristics[charId].read(function(error, data) {
+        // Char value was read, now check if it failed for some reason and then
+        // send the value to the renderer process to update its state and render.
+        if (error) {
+          console.log('Error reading characteristic: ' + error);
+        }
+        else {
+          mainWindow.webContents.send('charUpdated', serviceId, charId, String(data));
+        }
+      });
     }
   });
 
