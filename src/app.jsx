@@ -35,7 +35,7 @@ class App extends React.Component {
             </div>
             <div className='collapse navbar-collapse' id='navbar-elements'>
               <ul className='nav navbar-nav navbar-right'>
-                <li><a data-toggle='modal' data-target='#about-modal'>About</a></li>
+                <li><a data-toggle='modal' data-target='#about-modal' style={{cursor:'pointer'}}>About</a></li>
               </ul>
             </div>
           </div>
