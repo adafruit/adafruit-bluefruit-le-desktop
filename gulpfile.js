@@ -103,7 +103,7 @@ gulp.task('build', ['js-build', 'native-build'], function() {
 });
 
 gulp.task('package-clean', function() {
-  return del([packageFullName() + '.zip', packageFullName() + '/']);
+  return del([packageFullName() + '.zip', packageFullName() + '/**/*']);
 });
 
 gulp.task('electron-package', ['package-clean', 'build'], function(cb) {
