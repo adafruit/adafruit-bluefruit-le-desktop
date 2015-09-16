@@ -82,7 +82,12 @@ app.on('ready', function() {
   }
 
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 1000, height: 800});
+  mainWindow = new BrowserWindow({
+    width: 1000,
+    height: 800,
+    title: 'Adafruit Bluefruit LE',
+    icon: __dirname + '/../assets/adafruit_icon.png'
+  });
 
   // Disable the default menu.
   mainWindow.setMenu(null);

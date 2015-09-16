@@ -46,7 +46,7 @@ export default class UART extends React.Component {
         <form>
           <div className='form-group'>
             <label htmlFor='rx'>Received:</label>
-            <textarea id='rx' className="form-control" rows="20"></textarea>
+            <textarea id='rx' className="form-control" rows="20" readOnly style={{'background-color': '#ffffff'}}></textarea>
           </div>
           <div className='form-group'>
             <label htmlFor='tx'>Send:</label>
