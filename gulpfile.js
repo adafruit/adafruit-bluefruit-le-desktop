@@ -3,6 +3,7 @@ var del = require('del'),
     gulp = require('gulp'),
     babel = require("gulp-babel"),
     os = require('os'),
+    packager = require('electron-packager'),
     replace = require('gulp-replace'),
     shell = require('gulp-run'),
     sourcemaps = require("gulp-sourcemaps"),
@@ -12,9 +13,10 @@ var del = require('del'),
 var app = require('./app/package.json')
 
 
-// Global variables to control build.
+// Global variables to control build and package.
 var electronVersion = '0.30.4',
     packageName = 'able',
+    fullName = 'Adafruit Bluefruit LE'
     platform = os.platform(),
     arch = os.arch(),
     appVersion = app.version;
@@ -104,12 +106,56 @@ gulp.task('package-clean', function() {
   return del([packageFullName() + '.zip', packageFullName() + '/']);
 });
 
-gulp.task('electron-package', ['package-clean', 'build'], function() {
+gulp.task('electron-package', ['package-clean', 'build'], function(cb) {
   // Package task uses electron-package to build the final app package.
-  return shell('electron-packager app ' + packageName + ' --platform=' + platform + ' --arch=' + arch + ' --version=' + electronVersion + ' --asar').exec();
+  // Set general options.
+  var opts = {
+    dir: 'app',
+    name: packageName,
+    platform: platform,
+    arch: arch,
+    version: electronVersion,
+    prune: true,
+    overwrite: true,
+    asar: true,
+  };
+  // Set platform-specific options.
+  if (platform === 'darwin') {
+    opts.icon = 'app/assets/adafruit.icns';
+    opts['app-bundle-id'] = 'com.adafruit.BluefruitLE';
+    opts['app-version'] = appVersion;
+    opts['helper-bundle-id'] = 'com.adafruit.BluefruitLE.Helper';
+  }
+  else if (platform === 'win32') {
+    opts.icon = 'app/assets/adafruit.ico';
+    opts['version-string'] = {
+      CompanyName: 'Adafruit',
+      LegalCopyright: '2015',
+      FileDescription: 'Adafruit Bluefruit LE application.',
+      FileVersion: appVersion,
+      OriginalFilename: packageName + '.exe',
+      ProductVersion: appVersion,
+      ProductName: fullName
+    };
+  }
+  // Call packager.
+  packager(opts, function(error, appPath) {
+    if (error) {
+      cb(error);
+    }
+    else {
+      cb();
+    }
+  });
 });
 
-gulp.task('package', ['electron-package'], function() {
+gulp.task('copy-license-readme', ['electron-package'], function() {
+  // Copy the root LICENSE and README.md file into the application directory that will be zipped up.
+  return gulp.src(['LICENSE', 'README.md'])
+    .pipe(gulp.dest(packageFullName() + '/'));
+});
+
+gulp.task('package', ['copy-license-readme'], function() {
   // Zip up the built package.
   if (platform === 'darwin') {
     // For some reason zipping the app on OSX is broken because of gulp.src
