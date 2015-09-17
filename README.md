@@ -83,3 +83,21 @@ latest darwin-x64 release of the application from the
 page.  Unzip the archive and run the able application.
 
 ## Linux
+
+On Linux you need to meet the requirements for [noble on Linux](https://github.com/sandeepmistry/noble#linux-ubuntu)
+which include at least a Linux kernel version 3.6 or higher.  In addition you'll
+want to ensure [bluez](http://www.bluez.org/) is installed.  On a Debian/Ubuntu
+system make sure the following packages are installed:
+
+    sudo apt-get install bluetooth bluez-utils libbluetooth-dev libudev-dev
+
+Or on a Fedora or other RPM-based system install these packages:
+
+    sudo yum install bluez bluez-libs
+
+Then download the latest linux-x64 release of the application from the
+[releases](https://github.com/adafruit/adafruit-bluefruit-le-desktop/releases)
+page.  Unzip the archive, open a terminal, navigate to the location of the files
+and run the able application:
+
+    ./able
