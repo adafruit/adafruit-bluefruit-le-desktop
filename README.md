@@ -101,3 +101,98 @@ page.  Unzip the archive, open a terminal, navigate to the location of the files
 and run the able application:
 
     ./able
+
+# Compiling From Source
+
+To build the application from its source you will need to setup your machine
+to compile native node.js application code.  Be warned that this is a somewhat
+involved process on platforms like Windows!  If you just want to run the application
+grab one of the pre-built binaries from the [releases](https://github.com/adafruit/adafruit-bluefruit-le-desktop/releases).
+
+First you will need [node.js](https://nodejs.org/en/) version 0.12.7 installed.
+Later versions might work but have not been tested.  Node.js 4.0.0 is unfortunately
+not yet supported by many of the native dependencies.
+
+First follow **all** of the steps for [installing node-gyp to compile native modules for your platform](https://github.com/nodejs/node-gyp#installation).
+On Linux you'll need to install a compiler toolchain from your package manager.
+On Mac OSX you'll need to install the XCode command line tools.  On Windows you'll
+need to install Visual Studio 2013 community edition, Python 2.7, and follow all
+of the steps to setup environment variables, etc.  Do not move on until node-gyp
+has been installed!
+
+Next clone the repository for this application to get the latest source code.
+
+**!! WINDOWS WARNING !!**
+
+On Windows there is an unfortunate problem with node.js and npm where dependency
+file paths can exceed the 255 character platform limits of Windows and fail to
+install.  [The issue](https://github.com/nodejs/node-v0.x-archive/issues/6960)
+has a long history but is unfortunately still a problem as of 2015.  The best way
+to work around this issue is to install the source code into a subdirectory of
+the C:\ drive, like under C:\able.  If you don't do this you will see cryptic
+errors with missing modules during packaging of the application.
+
+**!! WINDOWS WARNING !!**
+
+Now install gulp to run the build scripts for the source:
+
+    npm install -g gulp
+
+Note on Ubuntu you probably need to use sudo when running npm install -g, see
+[this issue](http://askubuntu.com/questions/376950/npm-installed-packages-are-not-accessible).
+For other platforms like Mac OSX or Windows **do not** use sudo to run npm as root.
+
+Install the dependencies for building the application by navigating to the folder
+with the source and running the npm install command:
+
+    npm install
+
+Now you're ready to build the source using gulp commands.  To build a complete
+package for your platform use the `package` command:
+
+    gulp package
+
+This will install the application dependencies, compile any native node modules
+(being careful to ensure they are built to work with Electron), convert the
+application's React JSX code to javascript, and then package everything up with
+Electron.  After the package command finishes there will be a zip file created
+for your platform, like able-darwin-x64-0.1.0-beta.zip for Mac OSX with version
+0.1.0-beta of the code.  There will also be a folder created like able-darwin-x64,
+and inside this folder is the contents of the zip file.
+
+You can either run the packaged application code from the zip or folder above, or
+you can run the unpackaged application code with Electron manually.  The unpackaged
+application code will reside in the `app` subfolder, and it contains the following
+folders:
+*   assets - Binary assets for the application like icons, 3D models, etc.
+*   css - Cascading style sheets used by Bootstrap & Bootswatch.
+*   dist - ES6 and JSX source that has been 'compiled' to ES5 for Electron to run.
+*   fonts - Fonts used by Bootstrap.
+*   lib - Third party JavaScript libraries used by the application.
+
+To run Electron against this app code you can use an Electron prebuilt binary
+that is installed with the application dependencies.  From the application folder
+run:
+
+    ./node_modules/.bin/electron app
+
+Note that you *must* use the Electron version installed by the application.  The
+native dependencies of the app are compiled against a specific Electron version
+and won't work with other versions!
+
+Running Electron agains the app code directly is useful if you're modifying the
+code.  You can change the code and then run Electron with the app to test the changes
+without having to package all the code up again.  However you will need to be careful
+that if you change any JavaScript source code in the `src` directory you use the
+gulp `js-build` command to 'compile' JSX and ES6 JavaScript code:
+
+    gulp js-build
+
+After the `js-build` command runs it will drop the compiled JavaScript in the
+`app/dist` directory so you can run Electron against the app folder to see the
+changes.
+
+If you are modifying the code you will want to be aware that the code in the src
+directory uses [ES6](https://github.com/lukehoban/es6features) and the
+[React](https://facebook.github.io/react/) framework.  You will want to familiarize
+yourself with [using React](https://facebook.github.io/react/docs/getting-started.html).
