@@ -19,19 +19,21 @@ instructions for each platform.
 ## Windows
 
 Bluetooth low energy support has typically been problematic on Windows because of
-a lack of API's to access BLE devices.  However the [noble](https://github.com/sandeepmistry/noble)
+a lack of APIs to access BLE devices.  However the [noble](https://github.com/sandeepmistry/noble)
 library added support for Windows by talking directly to a USB BLE device and
-working around the lack of BLE driver support in the OS.  This means the Adafruit
+working around the lack of BLE support in the OS.  This means the Adafruit
 Bluefruit LE desktop app will *only* work with the following USB BLE adapters:
 
-*   [CSR8510](https://www.adafruit.com/products/1327) - This is the recommended
-    adapter and the only one that has been tested.  Look for a USB VID of 0x0a12
-    and USB PID of 0x0001.
-*   BCM920702 Bluetooth 4.0	- Look for a USB VID of 0x0a5c and USB PID of 0x21e8.
+*   **[CSR8510](https://www.adafruit.com/products/1327)** (USB VID 0x0a12, PID 0x0001)
+    - This is the recommended adapter and the only one that has been tested.
+*   **BCM920702 Bluetooth 4.0**	(USB VID 0x0a5c, PID of 0x21e8)
 
 Unfortunately any other BLE adapter, including one that might be built in to your
 laptop or computer, will not work.  You must be using one of the USB BLE adapters
 above.
+
+You'll need to be running Windows 7 or greater to use the application.  Note that
+only Windows 7 has been tested at the moment.
 
 Once you have the USB BLE adapter you will need to use [Zadig tool](http://zadig.akeo.ie/)
 to configure the device to use a WinUSB driver (note that Windows won't be able to
@@ -45,18 +47,19 @@ Find the BLE adapter in the device drop down list, in this case a CSR8510, and
 then select a WinUSB driver in the combobox on the right side of the green arrow.
 Click the Replace Driver button like below:
 
-![Zadig step 2](/docs/zadig1.png?raw=true)
+![Zadig step 2](/docs/zadig2.png?raw=true)
 
 Zadig tool will replace the driver for the device with a WinUSB driver.  When it
 finishes you should see a successful install dialog like below:
 
 ![Zadig step 3](/docs/zadig3.png?raw=true)
 
-You should be ready to use the Bluefruit LE application after Zadig tool installs
-the WinUSB driver.  Download the latest win32-x64 release (sorry there is currently
-no 32-bit Windows binary available yet) of the application from
-the [releases](https://github.com/adafruit/adafruit-bluefruit-le-desktop/releases) page.
-Unzip the archive and double click the able.exe inside to start the application.
+You should now be ready to use the Bluefruit LE application.  Download the
+latest  win32-x64 release (sorry there is currently no 32-bit Windows binary
+available yet) of the application from the
+[releases](https://github.com/adafruit/adafruit-bluefruit-le-desktop/releases)
+page. Unzip the archive and double click the able.exe inside to start the
+application.
 
 ### Driver Uninstall
 
