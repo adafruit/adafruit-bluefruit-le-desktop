@@ -55,7 +55,7 @@ finishes you should see a successful install dialog like below:
 ![Zadig step 3](/docs/zadig3.png?raw=true)
 
 You should now be ready to use the Bluefruit LE application.  Download the
-latest  win32-x64 release (sorry there is currently no 32-bit Windows binary
+latest win32-x64 release (sorry there is currently no 32-bit Windows binary
 available yet) of the application from the
 [releases](https://github.com/adafruit/adafruit-bluefruit-le-desktop/releases)
 page. Unzip the archive and double click the able.exe inside to start the
@@ -75,5 +75,11 @@ the WinUSB driver is not installed again when the device is connected to the com
 use Zadig tool to setup the BLE adapter with WinUSB again).
 
 ## Mac OSX
+
+On Mac OSX you only need to ensure your device supports Bluetooth 4.0/low
+energy. Most MacBooks since ~2012 should have BLE support.  Then download the
+latest darwin-x64 release of the application from the
+[releases](https://github.com/adafruit/adafruit-bluefruit-le-desktop/releases)
+page.  Unzip the archive and run the able application.
 
 ## Linux
