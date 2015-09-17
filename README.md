@@ -180,7 +180,7 @@ Note that you *must* use the Electron version installed by the application.  The
 native dependencies of the app are compiled against a specific Electron version
 and won't work with other versions!
 
-Running Electron agains the app code directly is useful if you're modifying the
+Running Electron against the app code directly is useful if you're modifying the
 code.  You can change the code and then run Electron with the app to test the changes
 without having to package all the code up again.  However you will need to be careful
 that if you change any JavaScript source code in the `src` directory you use the
