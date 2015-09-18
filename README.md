@@ -100,9 +100,16 @@ Or on a Fedora or other RPM-based system install these packages:
 Then download the latest linux-x64 release of the application from the
 [releases](https://github.com/adafruit/adafruit-bluefruit-le-desktop/releases)
 page.  Unzip the archive, open a terminal, navigate to the location of the files
-and run the able application:
+and run the able application.  Note that you should run the application as a root
+user using sudo:
 
-    ./able
+    sudo ./able
+
+Also if you have multiple Bluetooth adapters the first one will be chosen (hci0).
+You can set an explicit BLE adapter by following the [steps from the noble library](https://github.com/sandeepmistry/noble#multiple-adapters)
+to set the NOBLE_HCI_DEVICE_ID environment variable, like to use hci1:
+
+    sudo NOBLE_HCI_DEVICE_ID=1 ./able
 
 # Compiling From Source
 
