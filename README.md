@@ -6,6 +6,8 @@ view the services and characteristics, interact with a BLE UART, use a control
 pad, color picker, and view orientation from a [BNO-055 sensor](https://www.adafruit.com/products/2472).
 Created using [Electron](http://electron.atom.io/) and [noble](https://github.com/sandeepmistry/noble).
 
+![Adafruit Bluefruit LE Application](/docs/app.png?raw=true)
+
 Note that this program is currently in beta and might have bugs or issues.  Feel
 free to raise problems you find as new issues on this repository!
 
