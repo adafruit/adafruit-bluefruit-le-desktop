@@ -45,7 +45,7 @@ export default class Connect extends React.Component {
     return (
       <SingleColumnView header='Connecting'>
         {this.state.device === null ? '' : <h4>{this.state.device.name} [{this.state.device.address}]</h4>}
-        <StatusBar ref='statusbar' />
+        <StatusBar ref='statusbar' prefix='Status:'/>
         <ul className='list-inline text-right'>
           <li><Link to='scan' className='btn btn-primary'>Stop</Link></li>
         </ul>

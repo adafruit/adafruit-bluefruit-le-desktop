@@ -17,9 +17,12 @@ import os from 'os';
 let devices = [];             // List of known devices.
 let selectedIndex = null;     // Currently selected/connected device index.
 let selectedDevice = null;    // Currently selected device.
+let selectedAddress = null;   // MAC address or unique ID of the currently selected device.
+                              // Used when reconnecting to find the device again.
 let uartRx = null;            // Connected device UART RX char.
 let uartTx = null;            // Connected device UART TX char.
 let mainWindow = null;        // Main rendering window.
+let connectStatus = null;
 
 
 function runningAsRoot() {
@@ -83,13 +86,102 @@ function serializeServices(index) {
   return services;
 }
 
-function disconnect() {
-  // Disconnect from any selected device.
-  if (selectedDevice !== null) {
-    selectedDevice.disconnect();
-    selectedDevice = null;
-    selectedIndex = null;
+function findUARTCharacteristics(services) {
+  // Find the UART RX and TX characteristics and save them in global state.
+  // Process all the characteristics.
+  services.forEach(function(s, serviceId) {
+    s.characteristics.forEach(function(ch, charId) {
+      // Search for the UART TX and RX characteristics and save them.
+      if (ch.uuid === '6e400002b5a3f393e0a9e50e24dcca9e') {
+        uartTx = ch;
+      }
+      else if (ch.uuid === '6e400003b5a3f393e0a9e50e24dcca9e') {
+        uartRx = ch;
+        // Setup the RX characteristic to receive data updates and update
+        // the UI.  Make sure no other receivers have been set to prevent them
+        // stacking up on reconnect.
+        uartRx.removeAllListeners('data');
+        uartRx.on('data', function(data) {
+          if (mainWindow !== null) {
+            mainWindow.webContents.send('uartRx', String(data));
+          }
+        });
+        uartRx.notify(true);
+      }
+    });
+  });
+}
+
+function setConnectStatus(status, percent) {
+  // Set the current device connection status as shown in the UI.
+  // Will broadcast out the change on the connectStatus IPC event.
+  connectStatus = status;
+  mainWindow.webContents.send('connectStatus', status, percent !== undefined ? percent : 0);
+}
+
+function connected(error) {
+  // Callback for device connection.  Will kick off service discovery and
+  // grab the UART service TX & RX characteristics.
+  // Handle if there was an error connecting, just update the state and log
+  // the full error.
+  if (error) {
+    console.log('Error connecting: ' + error);
+    setConnectStatus('Error!');
+    return;
   }
+  // When disconnected try to reconnect (unless the user explicitly clicked disconnect).
+  // First make sure there are no other disconnect listeners (to prevent building up duplicates).
+  selectedDevice.removeAllListeners('disconnect');
+  selectedDevice.on('disconnect', function() {
+    reconnect(selectedAddress);
+  });
+  // Connected, now kick off service discovery.
+  setConnectStatus('Discovering Services...', 66);
+  selectedDevice.discoverAllServicesAndCharacteristics(function(error, services, characteristics) {
+    // Handle if there was an error.
+    if (error) {
+      console.log('Error discovering: ' + error);
+      setConnectStatus('Error!');
+      return;
+    }
+    // Setup the UART characteristics.
+    findUARTCharacteristics(services);
+    // Service discovery complete, connection is ready to use!
+    // Note that setting progress to 100 will cause the page to change to
+    // the information page.
+    setConnectStatus('Connected', 100);
+  });
+}
+
+function disconnect() {
+  // Null out selected device and index so there is no reconnect attempt made
+  // if this was an explicit user choice to disconnect.
+  let device = selectedDevice;
+  selectedDevice = null;
+  selectedIndex = null;
+  selectedAddress = null;
+  // Now disconnect the device.
+  if (device != null) {
+    device.disconnect();
+  }
+}
+
+function reconnect(address) {
+  // Don't reconnect if no address is provided.  This handles the case
+  // when the user clicks disconnect and really means they don't want to
+  // be connected anymore.
+  if (address === null) {
+    return;
+  }
+  // Othewise kick off the reconnection to the device.
+  console.log('Reconnecting to address: ' + address);
+  setConnectStatus('Reconnecting...');
+  // Turn on scanning and look for the device again.
+  disconnect();
+  selectedAddress = address;  // Must happen after disconnect since
+                              // disconnect sets selectedAddress null.
+  devices = [];
+  noble.startScanning();
 }
 
 app.on('window-all-closed', function() {
@@ -105,7 +197,6 @@ app.on('quit', function() {
   // Make sure device is disconnected before exiting.
   disconnect();
 });
-
 
 app.on('ready', function() {
   // This method will be called when Electron has finished
@@ -161,65 +252,21 @@ app.on('ready', function() {
     event.returnValue = serializeServices(index);
   });
 
+  ipc.on('getConnectStatus', function(event) {
+    // Return the current device connection status.
+    event.returnValue = connectStatus;
+  });
+
   ipc.on('deviceConnect', function(event, index) {
-    // TODO: Refactor the callbacks below to use promises and not turn into callback hell.
     // Start connecting to device at the specified index.
     // First get the selected device and save it for future reference.
     selectedIndex = index;
     selectedDevice = devices[index];
+    selectedAddress = selectedDevice.address;
     // Stop scanning and kick off connection to the device.
     noble.stopScanning();
-    mainWindow.webContents.send('connectStatus', 'Status: Connecting...', 33);
-    selectedDevice.connect(function(error) {
-      // Handle if there was an error connecting, just update the state and log
-      // the full error.
-      if (error) {
-        console.log('Error connecting: ' + error);
-        mainWindow.webContents.send('connectStatus', 'Status: Error!', 0);
-        return;
-      }
-      // When disconnected fall back to the scanning page.
-      selectedDevice.on('disconnect', function() {
-        // Keep selected device consistent by clearing it when disconnected.
-        selectedDevice = null;
-        selectedIndex = null;
-        mainWindow.loadUrl('file://' + __dirname + '/../app.html#scan');
-      });
-      // Connected, now kick off service discovery.
-      mainWindow.webContents.send('connectStatus', 'Status: Discovering Services...', 66);
-      selectedDevice.discoverAllServicesAndCharacteristics(function(error, services, characteristics) {
-        // Handle if there was an error.
-        if (error) {
-          console.log('Error discovering: ' + error);
-          mainWindow.webContents.send('connectStatus', 'Status: Error!', 0);
-          return;
-        }
-        // Service discovery complete, connection is ready to use!
-        // Note that setting progress to 100 will cause the page to change to
-        // the information page.
-        mainWindow.webContents.send('connectStatus', 'Status: Connected!', 100);
-        // Process all the characteristics.
-        services.forEach(function(s, serviceId) {
-          s.characteristics.forEach(function(ch, charId) {
-            // Search for the UART TX and RX characteristics and save them.
-            if (ch.uuid === '6e400002b5a3f393e0a9e50e24dcca9e') {
-              uartTx = ch;
-            }
-            else if (ch.uuid === '6e400003b5a3f393e0a9e50e24dcca9e') {
-              uartRx = ch;
-              // Setup the RX characteristic to receive data updates and update
-              // the UI.
-              uartRx.on('data', function(data) {
-                if (mainWindow !== null) {
-                  mainWindow.webContents.send('uartRx', String(data));
-                }
-              });
-              uartRx.notify(true);
-            }
-          });
-        });
-      });
-    });
+    setConnectStatus('Connecting...', 33);
+    selectedDevice.connect(connected);
   });
 
   ipc.on('uartTx', function(event, data) {
@@ -252,8 +299,17 @@ app.on('ready', function() {
   noble.on('discover', function(device) {
     // Noble found a device.  Add it to the list of known devices and then send
     // an event to notify the renderer process of the current device state.
-    devices.push(device);
+    let index = devices.push(device)-1;
     mainWindow.webContents.send('devicesChanged', devices.map(serializeDevice));
+    // Check if the found device is one we're attempting to reconnect to and kick
+    // off the reconnection.
+    if (selectedAddress !== null && device.address === selectedAddress) {
+      console.log('Found device, reconnecting...');
+      selectedIndex = index;
+      selectedDevice = devices[index];
+      noble.stopScanning();
+      selectedDevice.connect(connected);
+    }
   });
 
   // Start in the scanning mode if powered on, otherwise start in loading

@@ -21,7 +21,7 @@ export default class StatusBar extends React.Component {
   render() {
     return (
       <div>
-        <h4>{this.state.status}</h4>
+        <h4>{this.props.prefix !== null ? this.props.prefix : ''} {this.state.status}</h4>
         <div className='progress'>
           <div className='progress-bar progress-bar-striped active' role='progressbar'
                aria-valuenow={this.state.progress} aria-valuemin='0' aria-valuemax='100'

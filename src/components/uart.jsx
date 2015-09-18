@@ -43,10 +43,12 @@ export default class UART extends React.Component {
     // Render main UART view.
     return (
       <DeviceView header='UART' index={this.props.params.index}>
+        <p>Send and receive data with a BLE UART device.  Use the bleuart_cmdmode or bleuart_datamode examples
+        in the Bluefruit LE Arduino library to send & receive from the device.</p>
         <form>
           <div className='form-group'>
             <label htmlFor='rx'>Received:</label>
-            <textarea id='rx' className="form-control" rows="20" readOnly style={{'background-color': '#ffffff'}}></textarea>
+            <textarea id='rx' className="form-control" rows="16" readOnly style={{'backgroundColor': '#ffffff'}}></textarea>
           </div>
           <div className='form-group'>
             <label htmlFor='tx'>Send:</label>

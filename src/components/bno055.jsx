@@ -288,6 +288,8 @@ export default class BNO055 extends React.Component {
     // Render main BNO055 view.
     return (
       <DeviceView header='BNO-055' index={this.props.params.index}>
+        <p>Receive BNO-055 absolute orientation sensor readings over BLE and use them to rotate a 3D model.
+        Use the ndof_bno055 example in the Bluefruit LE Arduino library to send readings to this page.</p>
         <div className='row'>
           <div className='col-sm-12'>
             <div id='renderer'></div>

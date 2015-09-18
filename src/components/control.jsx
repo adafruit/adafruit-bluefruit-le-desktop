@@ -31,6 +31,8 @@ export default class Control extends React.Component {
     // Render main control view.
     return (
       <DeviceView header='Control' index={this.props.params.index}>
+        <p>Send controller button presses to a BLE device.  Use the controller example
+        in the Bluefruit LE Arduino library to display the received control button presses.</p>
         <div className='row'>
           <div className='col-sm-8 col-sm-offset-2'>
             <div className='row'>

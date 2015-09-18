@@ -23,14 +23,14 @@ export default class Scan extends React.Component {
 
   startScan() {
     this.setState({isScanning: true, devices: []});
-    this.refs.statusbar.setStatus('Status: Scanning...');
+    this.refs.statusbar.setStatus('Scanning...');
     this.refs.statusbar.setProgress(100);
     ipc.send('startScan');
   }
 
   stopScan() {
     this.setState({isScanning: false});
-    this.refs.statusbar.setStatus('Status: Stopped');
+    this.refs.statusbar.setStatus('Stopped');
     this.refs.statusbar.setProgress(0);
     ipc.send('stopScan');
   }
@@ -50,7 +50,7 @@ export default class Scan extends React.Component {
   render(){
     return (
       <SingleColumnView header='Device Scanning'>
-        <StatusBar ref='statusbar' />
+        <StatusBar ref='statusbar' prefix='Status:'/>
         <ul className='list-inline text-right'>
           <li><button type='button' className='btn btn-primary' disabled={this.state.isScanning ? 'disabled' : ''} onClick={this.startScan}>Start</button></li>
           <li><button type='button' className='btn btn-primary' disabled={this.state.isScanning ? '' : 'disabled'} onClick={this.stopScan}>Stop</button></li>

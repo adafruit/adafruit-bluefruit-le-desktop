@@ -35,12 +35,8 @@ export default class Color extends React.Component {
     // Render color picker view.
     return (
       <DeviceView header='Color' index={this.props.params.index}>
-        <div className='row'>
-          <div className='col-sm-6'>
-            <p>Click the color swatch below to pick a color, then click send
-            to send it to the device.</p>
-          </div>
-        </div>
+        <p>Click the color below to open the color picker, then send to send the color to a BLE device.  
+        Use the neopixel_picker example in the Bluefruit LE Arduino library to receive the color.</p>
         <div className='row'>
           <div className='col-sm-3'>
             <form>
