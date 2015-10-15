@@ -4,7 +4,7 @@
   "description": "Application to interact with Adafruit Bluefruit LE and other Bluetooth low energy devices.",
   "main": "dist/main.js",
   "keywords": [
-    "electon",
+    "electron",
     "ble"
   ],
   "author": "Tony DiCola <tdicola@adafruit.com>",
