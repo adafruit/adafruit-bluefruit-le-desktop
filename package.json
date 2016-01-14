@@ -14,7 +14,7 @@
     "del": "^2.0.0",
     "electron-packager": "^5.0.2",
     "electron-prebuilt": "0.30.4",
-    "electron-rebuild": "^0.2.5",
+    "electron-rebuild": "^1.1.1",
     "gulp": "^3.9.0",
     "gulp-babel": "^5.2.1",
     "gulp-replace": "^0.5.4",
