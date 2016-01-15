@@ -55,9 +55,9 @@ let routes = (
     <Route name='loading' path='loading'        handler={Loading}/>
     <Route name='scan'    path='scan'           handler={Scan}/>
     <Route name='connect' path='connect/:index' handler={Connect}/>
-  	<Route name='info'    path='info/:index'    handler={Information}/>
-  	<Route name='uart'    path='uart/:index'    handler={UART}/>
-  	<Route name='control' path='control/:index' handler={Control}/>
+    <Route name='info'    path='info/:index'    handler={Information}/>
+    <Route name='uart'    path='uart/:index'    handler={UART}/>
+    <Route name='control' path='control/:index' handler={Control}/>
     <Route name='color'   path='color/:index'   handler={Color}/>
     <Route name='bno055'  path='bno055/:index'  handler={BNO055}/>
   </Route>
