@@ -119,8 +119,7 @@ involved process on platforms like Windows!  If you just want to run the applica
 grab one of the pre-built binaries from the [releases](https://github.com/adafruit/adafruit-bluefruit-le-desktop/releases).
 
 First you will need [node.js](https://nodejs.org/en/) version 0.12.7 installed.
-Later versions might work but have not been tested.  Node.js 4.0.0 is unfortunately
-not yet supported by many of the native dependencies.
+Versions later than 0.12.7 might work but have not been tested.
 
 First follow **all** of the steps for [installing node-gyp to compile native modules for your platform](https://github.com/nodejs/node-gyp#installation).
 On Linux you'll need to install a compiler toolchain from your package manager.
